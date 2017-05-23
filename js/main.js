@@ -1,4 +1,3 @@
-
 (function () {
     const GRAVITY = -9.8;
     const FLOOR = 260;
@@ -16,16 +15,15 @@
     let showAt = function (s, size, x, y) {
         ctx.font = size + "px Arial";
 
-        ctx.fillText(s,x,y);
+        ctx.fillText(s, x, y);
     };
 
     let show = function (s, size) {
         ctx.font = size + "px Arial";
         var textMetrics = ctx.measureText(s);
 
-        showAt(s,size, canvas.width/2-textMetrics.width/2,canvas.height/2-size/2);
+        showAt(s, size, canvas.width / 2 - textMetrics.width / 2, canvas.height / 2 - size / 2);
     };
-
 
     let ship = {
         fuel: 500,
@@ -62,7 +60,7 @@
 
         vel: function () {
             var number = Math.sqrt(this.velocity.x * this.velocity.x + this.velocity.y * this.velocity.y);
-            return Math.round(number*10)/10;
+            return Math.round(number * 10) / 10;
         }
     };
 
@@ -76,6 +74,14 @@
 
     let lastTime, thisTime;
 
+    function floorHeight(x) {
+        return Math.sin(x / 10) * 2 + FLOOR;
+    }
+
+    var floorRough = function (x) {
+        return (Math.abs(floorHeight(x - 5) - floorHeight(x + 5)) > 5);
+    };
+
     function loop() {
         lastTime = thisTime || new Date().getTime();
         thisTime = new Date().getTime();
@@ -85,8 +91,10 @@
         canvas.width = canvas.width;
 
         ctx.beginPath();
-        ctx.moveTo(0,FLOOR);
-        ctx.lineTo(canvas.width,FLOOR);
+        ctx.moveTo(0, floorHeight(0));
+        for (let x = 0; x < canvas.width; x++) {
+            ctx.lineTo(x, floorHeight(x));
+        }
         ctx.stroke();
 
         drawShip();
@@ -105,16 +113,17 @@
         ship.inc(diff);
 
         showAt("Fuel: " + Math.round(ship.fuel), 24, 10, 36);
-        showAt("Velocity: " + ship.vel() +" m/s", 24, 10, 72);
+        showAt("Velocity: " + ship.vel() + " m/s", 24, 10, 72);
 
-        if (ship.pos.y > FLOOR - shipImage.height/2) {
-            console.log(ship.velocity);
-            console.log(ship.rotate);
+        if (ship.pos.y > FLOOR - shipImage.height / 2) {
 
             // falling too fast, drifting too hard or off by ~10 degrees.
             if (Math.abs(ship.velocity.y) >= DEATH_Y || Math.abs(ship.velocity.x) >= DEATH_X || Math.abs(ship.rotate) >= DEATH_ROT) {
                 show("kablewwwy", 56);
-            } else {
+            } else if (floorRough(ship.pos.x)) {
+                show("safe yay... except for the mountain, you ded", 48);
+            }
+            else {
                 show("safe yay", 56);
             }
         }
@@ -128,9 +137,10 @@
     }
 
     shipImage.onload = function () {
-        ship.velocity.x = getRandom(DEATH_X);
-        ship.velocity.y = getRandom(DEATH_Y);
-        ship.rotate = getRandom(DEATH_ROT);
+        ship.velocity.x = getRandom(2 * DEATH_X);
+        ship.velocity.y = getRandom(2 * DEATH_Y);
+        ship.rotate = getRandom(2 * DEATH_ROT);
+
         loop();
     };
     shipImage.src = "img/ship.png";
