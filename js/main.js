@@ -6,6 +6,30 @@
     const DEATH_ROT = 0.174533;
     // DEATH ROT DEATH ROT! To the tune of Dethklok, of course.
 
+    let date = new Date();
+
+    const padded = "00";
+    function pad(str) {
+        str = "" + str;
+        return padded.substring(0, padded.length - str.length) + str;
+    }
+
+    function roll(tomorrow) {
+        return new Date(tomorrow.setDate(tomorrow.getDate() + 1));
+    }
+    function fetchRate(theDate) {
+        let url = 'http://api.fixer.io/' + theDate.getFullYear() + '-' + pad(theDate.getMonth()) + '-' + pad(theDate.getDate()) + '?base=USD&symbols=ZAR';
+        console.log(url);
+        fetch(url)
+            .then(res => res.json())
+            .then((out) => {
+                console.log('Checkout this exchange: ', out.rates.ZAR);
+            })
+            .catch(err => console.error(err));
+    }
+    fetchRate(date);
+    console.log(roll(date));
+
     let canvas = document.getElementById('main-canvas');
     help.resizeCanvasToDisplaySize(canvas);
     let ctx = canvas.getContext('2d');
