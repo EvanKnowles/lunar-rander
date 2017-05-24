@@ -1,7 +1,6 @@
 
 (function () {
     const GRAVITY = -9.8;
-    const FLOOR = 260;
     const DEATH_Y = 20;
     const DEATH_X = 10;
     const DEATH_ROT = 0.174533;
@@ -12,9 +11,10 @@
 
     let date = new Date();
     let shipImage = new Image();
+    let moonImage = new Image();
     let flameImage = new Image();
     let avgHeight = 0;
-
+    var pat;
     const padded = "00";
     let days = [];
 
@@ -69,7 +69,7 @@
             if (!fetchRate(date, i)) {
                await sleep(200);
             }
-            console.log(i/TIME_SPAN);
+            //console.log(i/TIME_SPAN);
             date = unroll(date);
         }
 
@@ -91,7 +91,7 @@
     let canvas = document.getElementById('main-canvas');
     help.resizeCanvasToDisplaySize(canvas);
     let ctx = canvas.getContext('2d');
-
+    let floor = 2*canvas.height / 3;
 
     let showAt = function (s, size, x, y) {
         ctx.font = size + "px Arial";
@@ -101,6 +101,7 @@
 
     let show = function (s, size) {
         ctx.font = size + "px Arial";
+        ctx.fillStyle = 'white';
         var textMetrics = ctx.measureText(s);
 
         showAt(s, size, canvas.width / 2 - textMetrics.width / 2, canvas.height / 2 - size / 2);
@@ -161,7 +162,7 @@
     const TIME_WIDTH = canvas.width / TIME_SPAN;
     function floorHeight(x) {
         let day = Math.floor(x / TIME_WIDTH);
-        return (days[day] - avgHeight)*RATE_MULTIPLIER + FLOOR;
+        return (days[day] - avgHeight)*RATE_MULTIPLIER + floor;
     }
 
     /**
@@ -170,8 +171,8 @@
      * @returns {boolean}
      */
     var floorRough = function (x) {
-        var rough = Math.abs(floorHeight(x - shipImage/2) - floorHeight(x + shipImage/2));
-
+        var rough = (Math.abs(floorHeight(x - shipImage.width/2) - floorHeight(x)) + Math.abs(floorHeight(x + shipImage.width/2) - floorHeight(x)))/2;
+        console.log(rough);
         return rough > 5;
     };
 
@@ -182,13 +183,18 @@
 
         // this clears the canvas, promise.
         canvas.width = canvas.width;
+        ctx.fillStyle = pat;
 
         ctx.beginPath();
         ctx.moveTo(0, floorHeight(0));
         for (let x = 0; x < canvas.width; x++) {
             ctx.lineTo(x, floorHeight(x));
         }
-        ctx.stroke();
+        ctx.lineTo(canvas.width, canvas.height);
+        ctx.lineTo(0, canvas.height);
+        ctx.closePath();
+
+        ctx.fill();
 
         drawShip();
         if (help.upPressed) {
@@ -232,13 +238,18 @@
 
     shipImage.onload = function () {
         ship.velocity.x = getRandom(2 * DEATH_X);
-        ship.velocity.y = getRandom(2 * DEATH_Y);
+        ship.velocity.y = getRandom(DEATH_Y);
         ship.rotate = getRandom(2 * DEATH_ROT);
 
         loop();
     };
 
     flameImage.src = "img/flames.png";
+    moonImage.src = "img/moon.jpg";
+    moonImage.onload = function() {
+        pat=ctx.createPattern(moonImage,"repeat");
+        ctx.fillStyle = pat;
+    };
 
     function loadShip() {
         shipImage.src = "img/ship.png";
