@@ -9,3 +9,7 @@ Financial data is coming from fixer.io, everything else is hacked together.
 Thanks to [@sabzsgizo](https://twitter.com/sabzsgizo) for fixing my financial data display mess (the currency value floating by the ship).
 
 ![awesome screenshot of stars and stuff](screens/flames.png)
+
+Just to prove this lander had dreams, once, of being the top of a minibus.
+
+![very convincing crude drawing of minibus](screens/taxi-spec.jpg)
