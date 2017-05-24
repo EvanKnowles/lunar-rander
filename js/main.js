@@ -21,7 +21,7 @@
     let stars = [];
 
     const format = function (avgHeight) {
-        return Math.floor(avgHeight*100)/ 100;
+        return Math.floor(avgHeight * 100) / 100;
     }
 
     function pad(str) {
@@ -123,6 +123,14 @@
         var textMetrics = ctx.measureText(s);
 
         ctx.fillText(s, x - textMetrics.width - size, y);
+    };
+
+    let centerShowAt = function (s, size, x, y) {
+        ctx.font = size + "px Arial";
+        ctx.fillStyle = 'white';
+        var textMetrics = ctx.measureText(s);
+
+        ctx.fillText(s, x - textMetrics.width / 2, y);
     };
 
     let showAllAt = function (s, size, x, y) {
@@ -231,7 +239,7 @@
         for (let x = 0; x < TIME_SPAN; x++) {
             if (last != days[x]) {
                 var calcX = x * TIME_WIDTH + TIME_WIDTH / 2;
-                showAllAt(days[x], 12, calcX, floorHeight(calcX) - 20);
+                showAllAt(days[x], 9, calcX, floorHeight(calcX) - 20);
                 last = days[x];
             }
         }
@@ -282,6 +290,7 @@
 
         ship.inc(diff);
 
+        centerShowAt("ZAR/USD for the last 90 days", 24, canvas.width / 2, 36);
         showAt("Fuel: " + Math.round(ship.fuel), 24, 10, 36);
         showAt("Velocity: " + ship.vel() + " m/s", 24, 10, 72);
 
