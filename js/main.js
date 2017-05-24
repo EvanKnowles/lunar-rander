@@ -6,14 +6,17 @@
     const DEATH_X = 10;
     const DEATH_ROT = 0.174533;
     // DEATH ROT DEATH ROT! To the tune of Dethklok, of course.
+    const RATE_MULTIPLIER = 50;
 
     const TIME_SPAN = 7;
 
     let date = new Date();
     let shipImage = new Image();
     let flameImage = new Image();
+    let avgHeight = 0;
 
     const padded = "00";
+    let days = [];
 
     function pad(str) {
         str = "" + str;
@@ -25,13 +28,20 @@
     }
 
     function fetchRate(theDate, index) {
-        let url = 'http://api.fixer.io/' + theDate.getFullYear() + '-' + pad(theDate.getMonth()) + '-' + pad(theDate.getDate()) + '?base=USD&symbols=ZAR';
+        var date = theDate.getFullYear() + '-' + pad(theDate.getMonth()) + '-' + pad(theDate.getDate());
+        var retrieved = +localStorage.getItem(date);
+        if (retrieved) {
+            days[index] = retrieved;
+            return true;
+        }
+
+        let url = 'http://api.fixer.io/' + date + '?base=USD&symbols=ZAR';
         console.log(url);
         fetch(url)
             .then(res => res.json())
             .then((out) => {
                 days[index] = out.rates.ZAR;
-                console.log('Checkout this exchange: ', out.rates.ZAR);
+                localStorage.setItem(date, out.rates.ZAR);
             })
             .catch(err => {
                 if (err.indexOf("429")) {
@@ -39,9 +49,9 @@
                     console.log('SLOW DOWN!');
                 }
             });
+        return false;
     }
 
-    let days = [];
 
     function sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
@@ -56,8 +66,9 @@
 
     async function loadRates() {
         for (var i = 0; i < TIME_SPAN; i++) {
-            fetchRate(date, i);
-            await sleep(200);
+            if (!fetchRate(date, i)) {
+               await sleep(200);
+            }
             console.log(i/TIME_SPAN);
             date = unroll(date);
         }
@@ -66,6 +77,12 @@
            await sleep(100);
         }
         console.log(days);
+        avgHeight = 0;
+        for (let val of days){
+            avgHeight += val;
+        }
+        avgHeight = avgHeight / days.length;
+
         loadShip();
 
     }
@@ -144,11 +161,14 @@
     const TIME_WIDTH = canvas.width / TIME_SPAN;
     function floorHeight(x) {
         let day = Math.floor(x / TIME_WIDTH);
-        return days[day]*20 + FLOOR;
+        return (days[day] - avgHeight)*RATE_MULTIPLIER + FLOOR;
     }
 
     var floorRough = function (x) {
-        return Math.abs(floorHeight(x - 5) - floorHeight(x + 5)) > 5;
+
+        var rough = Math.abs(floorHeight(x - 15) - floorHeight(x + 15));
+        console.log("Rougness: " + rough);
+        return rough > 5;
     };
 
     function loop() {
