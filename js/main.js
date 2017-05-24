@@ -1,35 +1,65 @@
+
 (function () {
     const GRAVITY = -9.8;
     const FLOOR = 260;
     const DEATH_Y = 20;
     const DEATH_X = 10;
     const DEATH_ROT = 0.174533;
+    const TIME_SPAN = 7;
+
     // DEATH ROT DEATH ROT! To the tune of Dethklok, of course.
 
     let date = new Date();
 
     const padded = "00";
+
     function pad(str) {
         str = "" + str;
         return padded.substring(0, padded.length - str.length) + str;
     }
 
-    function roll(tomorrow) {
-        return new Date(tomorrow.setDate(tomorrow.getDate() + 1));
+    function unroll(tomorrow) {
+        return new Date(tomorrow.setDate(tomorrow.getDate() - 1));
     }
-    function fetchRate(theDate) {
+
+    function fetchRate(theDate, index) {
         let url = 'http://api.fixer.io/' + theDate.getFullYear() + '-' + pad(theDate.getMonth()) + '-' + pad(theDate.getDate()) + '?base=USD&symbols=ZAR';
         console.log(url);
         fetch(url)
             .then(res => res.json())
             .then((out) => {
+                days[index] = out.rates.ZAR;
                 console.log('Checkout this exchange: ', out.rates.ZAR);
             })
             .catch(err => console.error(err));
     }
-    fetchRate(date);
-    console.log(roll(date));
 
+    let days = [];
+
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+    var count = function (days) {
+        let count = 0;
+        for (let i of days) {
+            if (i) count++;
+        }
+        return count;
+    };
+    async function loadRates() {
+        for (var i = 0; i < TIME_SPAN; i++) {
+            fetchRate(date, i);
+            date = unroll(date);
+        }
+
+        while (count(days) != TIME_SPAN) {
+           await sleep(100);
+        }
+        console.log(days);
+
+    }
+
+    loadRates();
     let canvas = document.getElementById('main-canvas');
     help.resizeCanvasToDisplaySize(canvas);
     let ctx = canvas.getContext('2d');
