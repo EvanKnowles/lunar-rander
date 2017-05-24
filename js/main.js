@@ -1,4 +1,3 @@
-
 (function () {
     const GRAVITY = -9.8;
     const DEATH_Y = 20;
@@ -15,11 +14,15 @@
     let shipImage = new Image();
     let moonImage = new Image();
     let flameImage = new Image();
-    let avgHeight = 0;
+    let avgHeight = 0, maxHeight = 0, minHeight = 99999999;
     var pat;
     const padded = "00";
     let days = [];
     let stars = [];
+
+    const format = function (avgHeight) {
+        return Math.floor(avgHeight*100)/ 100;
+    }
 
     function pad(str) {
         str = "" + str;
@@ -28,13 +31,13 @@
 
     function unroll(tomorrow) {
         var n = tomorrow.getTime();
-        n-=86400000;
+        n -= 86400000;
         return new Date(n);
         //return new Date(new Date().setDate(tomorrow.getDate() - 1));
     }
 
     function fetchRate(theDate, index) {
-        const date = theDate.getFullYear() + '-' + pad(theDate.getMonth()+1) + '-' + pad(theDate.getDate());
+        const date = theDate.getFullYear() + '-' + pad(theDate.getMonth() + 1) + '-' + pad(theDate.getDate());
         console.log("Retrieving: " + date);
         const retrieved = +localStorage.getItem(date);
         if (retrieved) {
@@ -77,7 +80,8 @@
     async function loadRates() {
         for (var i = 0; i < TIME_SPAN; i++) {
             if (!fetchRate(date, i)) {
-                await sleep(200);
+            await sleep(200)
+                ;
             }
             //console.log(i/TIME_SPAN);
             date = unroll(date);
@@ -92,6 +96,8 @@
         console.log(days);
         avgHeight = 0;
         for (let val of days) {
+            minHeight = Math.min(minHeight, val);
+            maxHeight = Math.max(maxHeight, val);
             avgHeight += val;
         }
         avgHeight = avgHeight / days.length;
@@ -111,11 +117,18 @@
         ctx.fillStyle = 'white';
         ctx.fillText(s, x, y);
     };
+    let rightShowAt = function (s, size, x, y) {
+        ctx.font = size + "px Arial";
+        ctx.fillStyle = 'white';
+        var textMetrics = ctx.measureText(s);
+
+        ctx.fillText(s, x - textMetrics.width - size, y);
+    };
 
     let showAllAt = function (s, size, x, y) {
         ctx.font = size + "px Arial";
         ctx.fillStyle = 'white';
-        ctx.strokeStyle='black';
+        ctx.strokeStyle = 'black';
         ctx.strokeText(s, x, y);
         ctx.fillText(s, x, y);
     };
@@ -188,7 +201,7 @@
             return floor;
         }
 
-        return floor - (days[day] - avgHeight) * RATE_MULTIPLIER  ;
+        return floor - (days[day] - avgHeight) * RATE_MULTIPLIER;
     }
 
     /**
@@ -215,11 +228,11 @@
         ctx.fill();
 
         let last = -1;
-        for (let x = 0; x < TIME_SPAN; x++){
+        for (let x = 0; x < TIME_SPAN; x++) {
             if (last != days[x]) {
                 var calcX = x * TIME_WIDTH + TIME_WIDTH / 2;
                 showAllAt(days[x], 12, calcX, floorHeight(calcX) - 20);
-                last= days[x];
+                last = days[x];
             }
         }
     }
@@ -230,8 +243,8 @@
         ctx.lineWidth = 5;
         ctx.strokeStyle = '#ccc0';
         for (let star of stars) {
-            star.x -= star.xVel*0.1 * diff;
-            if (star.x < 0){
+            star.x -= star.xVel * 0.1 * diff;
+            if (star.x < 0) {
                 star.x = canvas.width;
                 star.y = Math.random() * floor;
             }
@@ -241,6 +254,7 @@
             ctx.stroke();
         }
     };
+
     function loop() {
         lastTime = thisTime || new Date().getTime();
         thisTime = new Date().getTime();
@@ -270,6 +284,10 @@
 
         showAt("Fuel: " + Math.round(ship.fuel), 24, 10, 36);
         showAt("Velocity: " + ship.vel() + " m/s", 24, 10, 72);
+
+        rightShowAt("Max exchange: R" + format(maxHeight), 24, canvas.width, 36);
+        rightShowAt("Avg exchange: R" + format(avgHeight), 24, canvas.width, 72);
+        rightShowAt("Min exchange: R" + format(minHeight), 24, canvas.width, 108);
 
         if (ship.pos.y > floorHeight(ship.pos.x) - shipImage.height / 2) {
 
