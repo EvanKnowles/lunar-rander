@@ -27,12 +27,16 @@
     }
 
     function unroll(tomorrow) {
-        return new Date(new Date().setDate(tomorrow.getDate() - 1));
+        var n = tomorrow.getTime();
+        n-=86400000;
+        return new Date(n);
+        //return new Date(new Date().setDate(tomorrow.getDate() - 1));
     }
 
     function fetchRate(theDate, index) {
-        var date = theDate.getFullYear() + '-' + pad(theDate.getMonth()) + '-' + pad(theDate.getDate());
-        var retrieved = +localStorage.getItem(date);
+        const date = theDate.getFullYear() + '-' + pad(theDate.getMonth()+1) + '-' + pad(theDate.getDate());
+        console.log("Retrieving: " + date);
+        const retrieved = +localStorage.getItem(date);
         if (retrieved) {
             days[index] = retrieved;
             return true;
@@ -44,6 +48,8 @@
             .then(res => res.json())
             .then((out) => {
                 days[index] = out.rates.ZAR;
+                console.log("Setting: " + date);
+
                 localStorage.setItem(date, out.rates.ZAR);
             })
             .catch(err => {
@@ -75,6 +81,8 @@
             }
             //console.log(i/TIME_SPAN);
             date = unroll(date);
+            console.log("New date:" + date);
+
         }
 
         while (count(days) != TIME_SPAN) {
@@ -100,7 +108,15 @@
 
     let showAt = function (s, size, x, y) {
         ctx.font = size + "px Arial";
+        ctx.fillStyle = 'white';
+        ctx.fillText(s, x, y);
+    };
 
+    let showAllAt = function (s, size, x, y) {
+        ctx.font = size + "px Arial";
+        ctx.fillStyle = 'white';
+        ctx.strokeStyle='black';
+        ctx.strokeText(s, x, y);
         ctx.fillText(s, x, y);
     };
 
@@ -168,7 +184,11 @@
 
     function floorHeight(x) {
         let day = Math.floor(x / TIME_WIDTH);
-        return (days[day] - avgHeight) * RATE_MULTIPLIER + floor;
+        if (day < 0 || day > days.length) {
+            return floor;
+        }
+
+        return floor - (days[day] - avgHeight) * RATE_MULTIPLIER  ;
     }
 
     /**
@@ -193,7 +213,17 @@
         ctx.lineTo(0, canvas.height);
         ctx.closePath();
         ctx.fill();
+
+        let last = -1;
+        for (let x = 0; x < TIME_SPAN; x++){
+            if (last != days[x]) {
+                var calcX = x * TIME_WIDTH + TIME_WIDTH / 2;
+                showAllAt(days[x], 12, calcX, floorHeight(calcX) - 20);
+                last= days[x];
+            }
+        }
     }
+
     var drawStars = function (diff) {
         ctx.fillStyle = 'white';
 
