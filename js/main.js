@@ -9,6 +9,8 @@
 
     const TIME_SPAN = 90;
 
+    const STARS = 100;
+
     let date = new Date();
     let shipImage = new Image();
     let moonImage = new Image();
@@ -17,6 +19,7 @@
     var pat;
     const padded = "00";
     let days = [];
+    let stars = [];
 
     function pad(str) {
         str = "" + str;
@@ -24,7 +27,7 @@
     }
 
     function unroll(tomorrow) {
-        return new Date(new Date().setDate(tomorrow.getDate()-1));
+        return new Date(new Date().setDate(tomorrow.getDate() - 1));
     }
 
     function fetchRate(theDate, index) {
@@ -56,6 +59,7 @@
     function sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
+
     var count = function (days) {
         let count = 0;
         for (let i of days) {
@@ -67,18 +71,19 @@
     async function loadRates() {
         for (var i = 0; i < TIME_SPAN; i++) {
             if (!fetchRate(date, i)) {
-               await sleep(200);
+                await sleep(200);
             }
             //console.log(i/TIME_SPAN);
             date = unroll(date);
         }
 
         while (count(days) != TIME_SPAN) {
-           await sleep(100);
+        await sleep(100)
+            ;
         }
         console.log(days);
         avgHeight = 0;
-        for (let val of days){
+        for (let val of days) {
             avgHeight += val;
         }
         avgHeight = avgHeight / days.length;
@@ -91,7 +96,7 @@
     let canvas = document.getElementById('main-canvas');
     help.resizeCanvasToDisplaySize(canvas);
     let ctx = canvas.getContext('2d');
-    let floor = 2*canvas.height / 3;
+    let floor = 2 * canvas.height / 3;
 
     let showAt = function (s, size, x, y) {
         ctx.font = size + "px Arial";
@@ -160,31 +165,25 @@
     let lastTime, thisTime;
 
     const TIME_WIDTH = canvas.width / TIME_SPAN;
+
     function floorHeight(x) {
         let day = Math.floor(x / TIME_WIDTH);
-        return (days[day] - avgHeight)*RATE_MULTIPLIER + floor;
+        return (days[day] - avgHeight) * RATE_MULTIPLIER + floor;
     }
 
     /**
-     * Basically the difference between the floor on either side of the ship.
+     * Basically the average between the floor on either side of the ship.
      * @param x
      * @returns {boolean}
      */
     var floorRough = function (x) {
-        var rough = (Math.abs(floorHeight(x - shipImage.width/2) - floorHeight(x)) + Math.abs(floorHeight(x + shipImage.width/2) - floorHeight(x)))/2;
+        var rough = (Math.abs(floorHeight(x - shipImage.width / 2) - floorHeight(x)) + Math.abs(floorHeight(x + shipImage.width / 2) - floorHeight(x))) / 2;
         console.log(rough);
         return rough > 5;
     };
 
-    function loop() {
-        lastTime = thisTime || new Date().getTime();
-        thisTime = new Date().getTime();
-        let diff = thisTime - lastTime;
-
-        // this clears the canvas, promise.
-        canvas.width = canvas.width;
+    function drawFloor() {
         ctx.fillStyle = pat;
-
         ctx.beginPath();
         ctx.moveTo(0, floorHeight(0));
         for (let x = 0; x < canvas.width; x++) {
@@ -193,8 +192,36 @@
         ctx.lineTo(canvas.width, canvas.height);
         ctx.lineTo(0, canvas.height);
         ctx.closePath();
-
         ctx.fill();
+    }
+    var drawStars = function (diff) {
+        ctx.fillStyle = 'white';
+
+        ctx.lineWidth = 5;
+        ctx.strokeStyle = '#ccc0';
+        for (let star of stars) {
+            star.x -= star.xVel*0.1 * diff;
+            if (star.x < 0){
+                star.x = canvas.width;
+                star.y = Math.random() * floor;
+            }
+            ctx.beginPath();
+            ctx.arc(star.x, star.y, (star.xVel) * 5, 0, 2 * Math.PI, false);
+            ctx.fill();
+            ctx.stroke();
+        }
+    };
+    function loop() {
+        lastTime = thisTime || new Date().getTime();
+        thisTime = new Date().getTime();
+        let diff = thisTime - lastTime;
+
+        // this clears the canvas, promise.
+        canvas.width = canvas.width;
+
+        drawStars(diff);
+
+        drawFloor();
 
         drawShip();
         if (help.upPressed) {
@@ -241,13 +268,21 @@
         ship.velocity.y = getRandom(DEATH_Y);
         ship.rotate = getRandom(2 * DEATH_ROT);
 
+        for (let i = 0; i < STARS; i++) {
+            stars.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * floor,
+                xVel: Math.random()
+            });
+        }
+
         loop();
     };
 
     flameImage.src = "img/flames.png";
     moonImage.src = "img/moon.jpg";
-    moonImage.onload = function() {
-        pat=ctx.createPattern(moonImage,"repeat");
+    moonImage.onload = function () {
+        pat = ctx.createPattern(moonImage, "repeat");
         ctx.fillStyle = pat;
     };
 
