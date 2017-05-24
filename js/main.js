@@ -5,11 +5,13 @@
     const DEATH_Y = 20;
     const DEATH_X = 10;
     const DEATH_ROT = 0.174533;
-    const TIME_SPAN = 90;
-
     // DEATH ROT DEATH ROT! To the tune of Dethklok, of course.
 
+    const TIME_SPAN = 7;
+
     let date = new Date();
+    let shipImage = new Image();
+    let flameImage = new Image();
 
     const padded = "00";
 
@@ -19,7 +21,7 @@
     }
 
     function unroll(tomorrow) {
-        return new Date(tomorrow.setDate(tomorrow.getDate() - 1));
+        return new Date(new Date().setDate(tomorrow.getDate()-1));
     }
 
     function fetchRate(theDate, index) {
@@ -73,7 +75,6 @@
     help.resizeCanvasToDisplaySize(canvas);
     let ctx = canvas.getContext('2d');
 
-    let shipImage = new Image();
 
     let showAt = function (s, size, x, y) {
         ctx.font = size + "px Arial";
@@ -131,6 +132,9 @@
         ctx.save();
         ctx.translate(ship.pos.x, ship.pos.y);
         ctx.rotate(ship.rotate);
+        if (help.upPressed && ship.fuel > 0) {
+            ctx.drawImage(flameImage, -flameImage.width / 2, flameImage.height / 3, flameImage.width, flameImage.height);
+        }
         ctx.drawImage(shipImage, -shipImage.width / 2, -shipImage.height / 2, shipImage.width, shipImage.height);
         ctx.restore();
     }
@@ -201,6 +205,7 @@
         return 2 * value - Math.random() * 4 * value;
     }
 
+
     shipImage.onload = function () {
         ship.velocity.x = getRandom(2 * DEATH_X);
         ship.velocity.y = getRandom(2 * DEATH_Y);
@@ -208,6 +213,9 @@
 
         loop();
     };
+
+    flameImage.src = "img/flames.png";
+
     function loadShip() {
         shipImage.src = "img/ship.png";
     }
