@@ -11,6 +11,7 @@
     const STARS = 100;
 
     let date = new Date();
+    let origDate = new Date();
     let shipImage = new Image();
     let moonImage = new Image();
     let flameImage = new Image();
@@ -34,10 +35,19 @@
         n -= 86400000;
         return new Date(n);
         //return new Date(new Date().setDate(tomorrow.getDate() - 1));
+    }function unrollMore(tomorrow,num) {
+        var n = tomorrow.getTime();
+        n -= 86400000 * num;
+        return new Date(n);
+        //return new Date(new Date().setDate(tomorrow.getDate() - 1));
+    }
+
+    function formatDate(theDate) {
+        return theDate.getFullYear() + '-' + pad(theDate.getMonth() + 1) + '-' + pad(theDate.getDate());
     }
 
     function fetchRate(theDate, index) {
-        const date = theDate.getFullYear() + '-' + pad(theDate.getMonth() + 1) + '-' + pad(theDate.getDate());
+        const date = formatDate(theDate);
         console.log("Retrieving: " + date);
         const retrieved = +localStorage.getItem(date);
         if (retrieved) {
@@ -197,6 +207,11 @@
         }
         ctx.drawImage(shipImage, -shipImage.width / 2, -shipImage.height / 2, shipImage.width, shipImage.height);
         ctx.restore();
+
+        var index = Math.floor(ship.pos.x / TIME_WIDTH);
+        var curr = days[index];
+        showAllAt("R" + format(curr), 16, ship.pos.x + 20, ship.pos.y - shipImage.height / 2);
+        showAllAt(formatDate(unrollMore(origDate, index)), 12, ship.pos.x + 20, ship.pos.y - shipImage.height / 2 + 12);
     }
 
     let lastTime, thisTime;
@@ -234,15 +249,6 @@
         ctx.lineTo(0, canvas.height);
         ctx.closePath();
         ctx.fill();
-
-        let last = -1;
-        for (let x = 0; x < TIME_SPAN; x++) {
-            if (last != days[x]) {
-                var calcX = x * TIME_WIDTH + TIME_WIDTH / 2;
-                showAllAt(days[x], 9, calcX, floorHeight(calcX) - 20);
-                last = days[x];
-            }
-        }
     }
 
     var drawStars = function (diff) {
