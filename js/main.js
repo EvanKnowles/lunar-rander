@@ -8,7 +8,7 @@
     // DEATH ROT DEATH ROT! To the tune of Dethklok, of course.
     const RATE_MULTIPLIER = 50;
 
-    const TIME_SPAN = 7;
+    const TIME_SPAN = 90;
 
     let date = new Date();
     let shipImage = new Image();
@@ -164,10 +164,14 @@
         return (days[day] - avgHeight)*RATE_MULTIPLIER + FLOOR;
     }
 
+    /**
+     * Basically the difference between the floor on either side of the ship.
+     * @param x
+     * @returns {boolean}
+     */
     var floorRough = function (x) {
+        var rough = Math.abs(floorHeight(x - shipImage/2) - floorHeight(x + shipImage/2));
 
-        var rough = Math.abs(floorHeight(x - 15) - floorHeight(x + 15));
-        console.log("Rougness: " + rough);
         return rough > 5;
     };
 
