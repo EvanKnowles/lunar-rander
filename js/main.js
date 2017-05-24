@@ -21,9 +21,14 @@
     let days = [];
     let stars = [];
 
+    let canvas = document.getElementById('main-canvas');
+    help.resizeCanvasToDisplaySize(canvas);
+    let ctx = canvas.getContext('2d');
+    let floor = 2 * canvas.height / 3;
+
     const format = function (avgHeight) {
         return Math.floor(avgHeight * 100) / 100;
-    }
+    };
 
     function pad(str) {
         str = "" + str;
@@ -35,7 +40,9 @@
         n -= 86400000;
         return new Date(n);
         //return new Date(new Date().setDate(tomorrow.getDate() - 1));
-    }function unrollMore(tomorrow,num) {
+    }
+
+    function unrollMore(tomorrow, num) {
         var n = tomorrow.getTime();
         n -= 86400000 * num;
         return new Date(n);
@@ -48,7 +55,6 @@
 
     function fetchRate(theDate, index) {
         const date = formatDate(theDate);
-        console.log("Retrieving: " + date);
         const retrieved = +localStorage.getItem(date);
         if (retrieved) {
             days[index] = retrieved;
@@ -56,7 +62,6 @@
         }
 
         let url = 'http://api.fixer.io/' + date + '?base=USD&symbols=ZAR';
-        console.log(url);
         fetch(url)
             .then(res => res.json())
             .then((out) => {
@@ -79,54 +84,12 @@
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 
-    var count = function (days) {
-        let count = 0;
-        for (let i of days) {
-            if (i) count++;
-        }
-        return count;
-    };
-
-    async function loadRates() {
-        for (var i = 0; i < TIME_SPAN; i++) {
-            if (!fetchRate(date, i)) {
-            await sleep(200)
-                ;
-            }
-            //console.log(i/TIME_SPAN);
-            date = unroll(date);
-            console.log("New date:" + date);
-
-        }
-
-        while (count(days) != TIME_SPAN) {
-        await sleep(100)
-            ;
-        }
-        console.log(days);
-        avgHeight = 0;
-        for (let val of days) {
-            minHeight = Math.min(minHeight, val);
-            maxHeight = Math.max(maxHeight, val);
-            avgHeight += val;
-        }
-        avgHeight = avgHeight / days.length;
-
-        loadShip();
-
-    }
-
-    loadRates();
-    let canvas = document.getElementById('main-canvas');
-    help.resizeCanvasToDisplaySize(canvas);
-    let ctx = canvas.getContext('2d');
-    let floor = 2 * canvas.height / 3;
-
     let showAt = function (s, size, x, y) {
         ctx.font = size + "px Arial";
         ctx.fillStyle = 'white';
         ctx.fillText(s, x, y);
     };
+
     let rightShowAt = function (s, size, x, y) {
         ctx.font = size + "px Arial";
         ctx.fillStyle = 'white';
@@ -151,6 +114,7 @@
         ctx.fillText(s, x, y);
     };
 
+
     let show = function (s, size) {
         ctx.font = size + "px Arial";
         ctx.fillStyle = 'white';
@@ -158,6 +122,49 @@
 
         showAt(s, size, canvas.width / 2 - textMetrics.width / 2, canvas.height / 2 - size / 2);
     };
+
+    var count = function (days) {
+        let count = 0;
+        for (let i of days) {
+            if (i) count++;
+        }
+        return count;
+    };
+
+    async function loadRates() {
+        show("Loading " + TIME_SPAN + " days worth of currency data (slow just this once)...", 24);
+
+        for (var i = 0; i < TIME_SPAN; i++) {
+            if (!fetchRate(date, i)) {
+            await sleep(200)
+                ;
+            }
+            canvas.width = canvas.width;
+
+            show("Loading " + (TIME_SPAN-i) + " days worth of currency data (slow just this once)...", 24);
+
+            date = unroll(date);
+        }
+
+        while (count(days) != TIME_SPAN) {
+            canvas.width = canvas.width;
+            show("Loading " + (TIME_SPAN - count(days)) + " days worth of currency data (slow just this once)...", 24);
+
+        await sleep(100)
+            ;
+        }
+        console.log(days);
+        avgHeight = 0;
+        for (let val of days) {
+            minHeight = Math.min(minHeight, val);
+            maxHeight = Math.max(maxHeight, val);
+            avgHeight += val;
+        }
+        avgHeight = avgHeight / days.length;
+
+        loadShip();
+    }
+
 
     let ship = {
         fuel: 500,
@@ -341,6 +348,9 @@
 
         loop();
     };
+
+
+    loadRates();
 
     flameImage.src = "img/flames.png";
     moonImage.src = "img/moon.jpg";
