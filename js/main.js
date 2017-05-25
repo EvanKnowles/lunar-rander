@@ -67,8 +67,10 @@
             .then((out) => {
                 days[index] = out.rates.ZAR;
                 console.log("Setting: " + date);
-
-                localStorage.setItem(date, out.rates.ZAR);
+                // don't save current date, could change
+                if (formatDate(new Date()) !== date) {
+                    localStorage.setItem(date, out.rates.ZAR);
+                }
             })
             .catch(err => {
                 if (err.indexOf("429")) {
