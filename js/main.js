@@ -16,7 +16,7 @@
     let moonImage = new Image();
     let flameImage = new Image();
     let avgHeight = 0, maxHeight = 0, minHeight = 99999999;
-    var pat;
+    let pat;
     const padded = "00";
     let days = [];
     let stars = [];
@@ -36,17 +36,13 @@
     }
 
     function unroll(tomorrow) {
-        var n = tomorrow.getTime();
-        n -= 86400000;
-        return new Date(n);
-        //return new Date(new Date().setDate(tomorrow.getDate() - 1));
+        return unrollMore(tomorrow, 1);
     }
 
     function unrollMore(tomorrow, num) {
-        var n = tomorrow.getTime();
+        let n = tomorrow.getTime();
         n -= 86400000 * num;
         return new Date(n);
-        //return new Date(new Date().setDate(tomorrow.getDate() - 1));
     }
 
     function formatDate(theDate) {
@@ -81,7 +77,6 @@
         return false;
     }
 
-
     function sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
@@ -95,7 +90,7 @@
     let rightShowAt = function (s, size, x, y) {
         ctx.font = size + "px Arial";
         ctx.fillStyle = 'white';
-        var textMetrics = ctx.measureText(s);
+        const textMetrics = ctx.measureText(s);
 
         ctx.fillText(s, x - textMetrics.width - size, y);
     };
@@ -103,7 +98,7 @@
     let centerShowAt = function (s, size, x, y) {
         ctx.font = size + "px Arial";
         ctx.fillStyle = 'white';
-        var textMetrics = ctx.measureText(s);
+        const textMetrics = ctx.measureText(s);
 
         ctx.fillText(s, x - textMetrics.width / 2, y);
     };
@@ -120,12 +115,12 @@
     let show = function (s, size) {
         ctx.font = size + "px Arial";
         ctx.fillStyle = 'white';
-        var textMetrics = ctx.measureText(s);
+        const textMetrics = ctx.measureText(s);
 
         showAt(s, size, canvas.width / 2 - textMetrics.width / 2, canvas.height / 2 - size / 2);
     };
 
-    var count = function (days) {
+    const count = function (days) {
         let count = 0;
         for (let i of days) {
             if (i) count++;
@@ -138,12 +133,12 @@
 
         for (var i = 0; i < TIME_SPAN; i++) {
             if (!fetchRate(date, i)) {
-            await sleep(200)
+                await sleep(200)
                 ;
             }
             canvas.width = canvas.width;
 
-            show("Loading " + (TIME_SPAN-i) + " days worth of currency data (slow just this once)...", 24);
+            show("Loading " + (TIME_SPAN - i) + " days worth of currency data (slow just this once)...", 24);
 
             date = unroll(date);
         }
@@ -152,8 +147,7 @@
             canvas.width = canvas.width;
             show("Loading " + (TIME_SPAN - count(days)) + " days worth of currency data (slow just this once)...", 24);
 
-        await sleep(100)
-            ;
+            await sleep(100);
         }
         console.log(days);
         avgHeight = 0;
@@ -166,7 +160,6 @@
 
         loadShip();
     }
-
 
     let ship = {
         fuel: 500,
@@ -184,25 +177,31 @@
         },
 
         inc: function (diff) {
-            var multiplier = (diff / 1000);
+            const multiplier = (diff / 1000);
 
             this.velocity.y += GRAVITY * multiplier;
             this.pos.x += this.velocity.x * multiplier;
             this.pos.y -= this.velocity.y * multiplier;
+
+            if (this.pos.x < 0) {
+                this.pos.x = canvas.width;
+            } else if (this.pos.x > canvas.width) {
+                this.pos.x = 0;
+            }
         },
 
         thrust: function (diff) {
             if (this.fuel < 0) {
                 return;
             }
-            var multiplier = (diff / 1000);
+            const multiplier = (diff / 1000);
             this.fuel -= this.power * multiplier;
             this.velocity.x += this.power * Math.sin(this.rotate) * multiplier;
             this.velocity.y += this.power * Math.cos(-this.rotate) * multiplier;
         },
 
         vel: function () {
-            var number = Math.sqrt(this.velocity.x * this.velocity.x + this.velocity.y * this.velocity.y);
+            const number = Math.sqrt(this.velocity.x * this.velocity.x + this.velocity.y * this.velocity.y);
             return Math.round(number * 10) / 10;
         }
     };
@@ -217,8 +216,8 @@
         ctx.drawImage(shipImage, -shipImage.width / 2, -shipImage.height / 2, shipImage.width, shipImage.height);
         ctx.restore();
 
-        var index = Math.floor(ship.pos.x / TIME_WIDTH);
-        var curr = days[index];
+        const index = Math.floor(ship.pos.x / TIME_WIDTH);
+        const curr = days[index];
         showAllAt("R" + format(curr), 16, ship.pos.x + 20, ship.pos.y - shipImage.height / 2);
         showAllAt(formatDate(unrollMore(origDate, index)), 12, ship.pos.x + 20, ship.pos.y - shipImage.height / 2 + 12);
     }
@@ -242,7 +241,7 @@
      * @returns {boolean}
      */
     var floorRough = function (x) {
-        var rough = (Math.abs(floorHeight(x - shipImage.width / 2) - floorHeight(x)) + Math.abs(floorHeight(x + shipImage.width / 2) - floorHeight(x))) / 2;
+        const rough = (Math.abs(floorHeight(x - shipImage.width / 2) - floorHeight(x)) + Math.abs(floorHeight(x + shipImage.width / 2) - floorHeight(x))) / 2;
         console.log(rough);
         return rough > 5;
     };
