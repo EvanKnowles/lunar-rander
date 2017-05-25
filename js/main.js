@@ -4,7 +4,7 @@
     const DEATH_X = 10;
     const DEATH_ROT = 0.174533;
     // DEATH ROT DEATH ROT! To the tune of Dethklok, of course.
-    const RATE_MULTIPLIER = 50;
+    const RATE_MULTIPLIER = 500;
 
     const TIME_SPAN = 90;
 
