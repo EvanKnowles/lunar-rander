@@ -1,14 +1,24 @@
+
 (function () {
     const GRAVITY = -9.8;
     const DEATH_Y = 20;
     const DEATH_X = 10;
     const DEATH_ROT = 0.174533;
     // DEATH ROT DEATH ROT! To the tune of Dethklok, of course.
-    const RATE_MULTIPLIER = 500;
+    const RATE_MULTIPLIER = 300;
 
     const TIME_SPAN = 90;
 
     const STARS = 100;
+
+    let screenTouch = false;
+
+
+    if (window.DeviceOrientationEvent) {
+        window.addEventListener('deviceorientation', devOrientHandler, false);
+    } else {
+        alert("No  device orientationinigationg.")
+    }
 
     let date = new Date();
     let origDate = new Date();
@@ -167,7 +177,7 @@
             x: 50,
             y: 100
         },
-        power: 20,
+        power: 30,
         spinSpeed: Math.PI / 4,
         rotate: 0,
         velocity: {x: 10, y: 20},
@@ -210,7 +220,7 @@
         ctx.save();
         ctx.translate(ship.pos.x, ship.pos.y);
         ctx.rotate(ship.rotate);
-        if (help.upPressed && ship.fuel > 0) {
+        if ((screenTouch || help.upPressed) && ship.fuel > 0) {
             ctx.drawImage(flameImage, -flameImage.width / 2, flameImage.height / 3, flameImage.width, flameImage.height);
         }
         ctx.drawImage(shipImage, -shipImage.width / 2, -shipImage.height / 2, shipImage.width, shipImage.height);
@@ -290,7 +300,7 @@
         drawFloor();
 
         drawShip();
-        if (help.upPressed) {
+        if (help.upPressed || screenTouch) {
             ship.thrust(diff);
         }
         if (help.leftPressed) {
@@ -305,6 +315,9 @@
         ship.inc(diff);
 
         centerShowAt("ZAR/USD for the last 90 days", 24, canvas.width / 2, 36);
+        if (help.mobilecheck()) {
+            centerShowAt("Tilt your phone - lock orientation?.", 24, canvas.width / 2, 60);
+        }
         showAt("Fuel: " + Math.round(ship.fuel), 24, 10, 36);
         showAt("Velocity: " + ship.vel() + " m/s", 24, 10, 72);
 
@@ -351,7 +364,30 @@
     };
 
 
+    window.addEventListener('touchstart', function() {
+        screenTouch = true;
+    });
+    window.addEventListener('touchend', function() {
+        screenTouch = false;
+    });
+
     loadRates();
+    function devOrientHandler(eventData) {
+        // gamma is the left-to-right tilt in degrees, where right is positive
+        var tiltLR = eventData.gamma;
+
+        // beta is the front-to-back tilt in degrees, where front is positive
+        var tiltFB = eventData.beta;
+
+        function toRadians (angle) {
+            return angle * (Math.PI / 180);
+        }
+        if(window.innerHeight > window.innerWidth){
+            ship.rotate = toRadians(tiltLR);
+        } else {
+            ship.rotate = toRadians(tiltFB)/2;
+        }
+    }
 
     flameImage.src = "img/flames.png";
     moonImage.src = "img/moon.jpg";
