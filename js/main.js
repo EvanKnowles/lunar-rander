@@ -1,4 +1,3 @@
-
 (function () {
     const GRAVITY = -9.8;
     const DEATH_Y = 20;
@@ -6,6 +5,9 @@
     const DEATH_ROT = 0.174533;
     // DEATH ROT DEATH ROT! To the tune of Dethklok, of course.
     const RATE_MULTIPLIER = 300;
+
+    const NYAN_DELAY = 10000;
+    const NYAN_SPEED = 20;
 
     const TIME_SPAN = 90;
 
@@ -25,6 +27,8 @@
     let shipImage = new Image();
     let moonImage = new Image();
     let flameImage = new Image();
+    let nyanImage = new Image();
+
     let avgHeight = 0, maxHeight = 0, minHeight = 99999999;
     let pat;
     const padded = "00";
@@ -143,7 +147,7 @@
 
         for (var i = 0; i < TIME_SPAN; i++) {
             if (!fetchRate(date, i)) {
-                await sleep(200)
+            await sleep(200)
                 ;
             }
             canvas.width = canvas.width;
@@ -157,7 +161,8 @@
             canvas.width = canvas.width;
             show("Loading " + (TIME_SPAN - count(days)) + " days worth of currency data (slow just this once)...", 24);
 
-            await sleep(100);
+        await sleep(100)
+            ;
         }
         console.log(days);
         avgHeight = 0;
@@ -170,6 +175,24 @@
 
         loadShip();
     }
+
+    let nyan = {
+        inplay: false
+    };
+
+    let makeNyan = function () {
+        if (nyan.inplay) {
+            return;
+        }
+
+        nyan.inplay = true;
+        nyan.x = -nyanImage.width;
+        nyan.y = Math.random() * floor;
+        console.log(nyan);
+    };
+
+    makeNyan();
+    //setTimeout(makeNyan, Math.random() * NYAN_DELAY);
 
     let ship = {
         fuel: 500,
@@ -260,8 +283,9 @@
         ctx.fillStyle = pat;
         ctx.beginPath();
         ctx.moveTo(0, floorHeight(0));
-        for (let x = 0; x < canvas.width; x++) {
-            ctx.lineTo(x, floorHeight(x));
+        for (let x = 1; x < TIME_SPAN; x++) {
+            ctx.lineTo((x-1) * TIME_WIDTH, floorHeight(x * TIME_WIDTH));
+            ctx.lineTo(x * TIME_WIDTH, floorHeight(x * TIME_WIDTH));
         }
         ctx.lineTo(canvas.width, canvas.height);
         ctx.lineTo(0, canvas.height);
@@ -287,6 +311,24 @@
         }
     };
 
+    var drawNyan = function (diff) {
+        if (!nyan.inplay) {
+            return;
+        }
+
+        nyan.x += NYAN_SPEED * diff / 1000;
+        nyan.showY = nyan.y + Math.sin(nyan.x);
+
+        if (nyan.x > canvas.width) {
+            nyan.inplay = false;
+            setTimeout(makeNyan, NYAN_DELAY * Math.random());
+        } else {
+            ctx.drawImage(nyanImage, nyan.x, nyan.showY);
+            console.log(nyan);
+
+        }
+    };
+
     function loop() {
         lastTime = thisTime || new Date().getTime();
         thisTime = new Date().getTime();
@@ -297,7 +339,10 @@
 
         drawStars(diff);
 
+        drawNyan(diff);
+
         drawFloor();
+
 
         drawShip();
         if (help.upPressed || screenTouch) {
@@ -364,10 +409,10 @@
     };
 
 
-    window.addEventListener('touchstart', function() {
+    window.addEventListener('touchstart', function () {
         screenTouch = true;
     });
-    window.addEventListener('touchend', function() {
+    window.addEventListener('touchend', function () {
         screenTouch = false;
     });
 
@@ -379,18 +424,21 @@
         // beta is the front-to-back tilt in degrees, where front is positive
         var tiltFB = eventData.beta;
 
-        function toRadians (angle) {
+        function toRadians(angle) {
             return angle * (Math.PI / 180);
         }
-        if(window.innerHeight > window.innerWidth){
+
+        if (window.innerHeight > window.innerWidth) {
             ship.rotate = toRadians(tiltLR);
         } else {
-            ship.rotate = toRadians(tiltFB)/2;
+            ship.rotate = toRadians(tiltFB) / 2;
         }
     }
 
     flameImage.src = "img/flames.png";
     moonImage.src = "img/moon.jpg";
+    nyanImage.src = "img/nyan.png";
+
     moonImage.onload = function () {
         pat = ctx.createPattern(moonImage, "repeat");
         ctx.fillStyle = pat;
