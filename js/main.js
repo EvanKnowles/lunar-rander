@@ -164,7 +164,6 @@
         await sleep(100)
             ;
         }
-        console.log(days);
         avgHeight = 0;
         for (let val of days) {
             minHeight = Math.min(minHeight, val);
@@ -188,7 +187,6 @@
         nyan.inplay = true;
         nyan.x = -nyanImage.width;
         nyan.y = Math.random() * floor;
-        console.log(nyan);
     };
 
     makeNyan();
@@ -275,7 +273,6 @@
      */
     var floorRough = function (x) {
         const rough = (Math.abs(floorHeight(x - shipImage.width / 2) - floorHeight(x)) + Math.abs(floorHeight(x + shipImage.width / 2) - floorHeight(x))) / 2;
-        console.log(rough);
         return rough > 5;
     };
 
@@ -324,8 +321,6 @@
             setTimeout(makeNyan, NYAN_DELAY * Math.random());
         } else {
             ctx.drawImage(nyanImage, nyan.x, nyan.showY);
-            console.log(nyan);
-
         }
     };
 
