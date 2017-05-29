@@ -375,7 +375,7 @@
             if (Math.abs(ship.velocity.y) >= DEATH_Y || Math.abs(ship.velocity.x) >= DEATH_X || Math.abs(ship.rotate) >= DEATH_ROT) {
                 show("kablewwwy", 56);
             } else if (floorRough(ship.pos.x)) {
-                show("safe yay... except for the mountain, you ded", 48);
+                show("oh dear... that's a mountain, you ded", 48);
             }
             else {
                 show("safe yay", 56);
