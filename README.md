@@ -3,7 +3,7 @@ It's just like Lunar lander (well, not really, kinda an arm-length estimate), bu
 
 Uses arrow keys to navigate on desktop, and phone rotation / touch to navigate on mobile.
 
-On load, it pulls the last 90 days (which may take a while, we need a loading screen) of data, caches it in localStorage (whew),
+On load, it pulls the last 90 days of data (takes a moment), caches it in localStorage (whew),
 then lets you try land a modified taxi on it.
 
 Financial data is coming from fixer.io, everything else is hacked together.
