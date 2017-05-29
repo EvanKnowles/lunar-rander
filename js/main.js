@@ -459,6 +459,7 @@
     button.onclick = function() {
         document.querySelector('aside').classList.add('hidden');
         randomizeShip();
+        thisTime = new Date().getTime();
         loop();
     };
 })();
