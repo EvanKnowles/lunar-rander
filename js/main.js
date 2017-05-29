@@ -394,6 +394,7 @@
     }
 
     function randomizeShip() {
+        ship.fuel = 500;
         ship.pos.x = Math.random() * (canvas.width - 4*shipImage.width) + 2*shipImage.width;
         ship.pos.y = 50;
         ship.velocity.x = getRandom(2 * DEATH_X);
