@@ -8,3 +8,28 @@ canvas {
     height: 100%;
     background-color: black;
 }
+
+aside {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.hidden {
+    display: none;
+}
+
+button.new-game {
+    top: 25%;
+    position: absolute;
+    transform: translateY(-50%) translateX(-50%);
+    left: 50%;
+    width: 20rem;
+    height: 5rem;
+    background-image: url('../img/moon.jpg');
+    color: rgba(255, 255, 255, 0.71);
+    font-size: 2rem;
+    text-shadow: -1px 0 #000000,0 1px #000000,1px 0 #000000,0 -1px #000000;
+}

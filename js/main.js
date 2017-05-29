@@ -190,8 +190,8 @@
         nyan.y = Math.random() * floor;
     };
 
-    makeNyan();
-    //setTimeout(makeNyan, Math.random() * NYAN_DELAY);
+    //makeNyan();
+    setTimeout(makeNyan, Math.random() * NYAN_DELAY);
 
     let ship = {
         fuel: 500,
@@ -273,10 +273,10 @@
      * @returns {boolean}
      */
     var floorRough = function (x) {
-        const rough = (Math.abs(floorHeight(x - shipImage.width / 2) - floorHeight(x)) + Math.abs(floorHeight(x + shipImage.width / 2) - floorHeight(x))) / 2;
+        const rough = (Math.abs(floorHeight(x - 2*shipImage.width / 3) - floorHeight(x)) + Math.abs(floorHeight(x + 2*shipImage.width / 3) - floorHeight(x))) / 2;
         console.log(rough);
         
-        return rough > 5;
+        return rough > 20;
     };
 
     function drawFloor() {
@@ -380,6 +380,9 @@
             else {
                 show("safe yay", 56);
             }
+
+            let nodeList = document.querySelectorAll('aside.hidden');
+            nodeList[0].classList.remove('hidden');
         }
         else {
             requestAnimationFrame(loop)
@@ -390,12 +393,16 @@
         return 2 * value - Math.random() * 4 * value;
     }
 
-
-    shipImage.onload = function () {
+    function randomizeShip() {
+        ship.pos.x = Math.random() * (canvas.width - 4*shipImage.width) + 2*shipImage.width;
+        ship.pos.y = 50;
         ship.velocity.x = getRandom(2 * DEATH_X);
         ship.velocity.y = getRandom(DEATH_Y);
         ship.rotate = getRandom(2 * DEATH_ROT);
+    }
 
+    shipImage.onload = function () {
+        randomizeShip();
         for (let i = 0; i < STARS; i++) {
             stars.push({
                 x: Math.random() * canvas.width,
@@ -446,4 +453,11 @@
     function loadShip() {
         shipImage.src = "img/ship.png";
     }
+
+    let button = document.querySelector('aside button');
+    button.onclick = function() {
+        document.querySelector('aside').classList.add('hidden');
+        randomizeShip();
+        loop();
+    };
 })();
