@@ -1,4 +1,5 @@
 (function () {
+    //noinspection BadExpressionStatementJS
     const GRAVITY = -9.8;
     const DEATH_Y = 20;
     const DEATH_X = 10;
@@ -273,6 +274,8 @@
      */
     var floorRough = function (x) {
         const rough = (Math.abs(floorHeight(x - shipImage.width / 2) - floorHeight(x)) + Math.abs(floorHeight(x + shipImage.width / 2) - floorHeight(x))) / 2;
+        console.log(rough);
+        
         return rough > 5;
     };
 
@@ -281,9 +284,10 @@
         ctx.beginPath();
         ctx.moveTo(0, floorHeight(0));
         for (let x = 1; x < TIME_SPAN; x++) {
-            ctx.lineTo((x-1) * TIME_WIDTH, floorHeight(x * TIME_WIDTH));
             ctx.lineTo(x * TIME_WIDTH, floorHeight(x * TIME_WIDTH));
         }
+        ctx.lineTo((TIME_SPAN)*TIME_WIDTH, floorHeight((TIME_SPAN)*TIME_WIDTH*TIME_WIDTH));
+
         ctx.lineTo(canvas.width, canvas.height);
         ctx.lineTo(0, canvas.height);
         ctx.closePath();
