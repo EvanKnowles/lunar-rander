@@ -49,7 +49,15 @@
         str = "" + str;
         return padded.substring(0, padded.length - str.length) + str;
     }
-
+    function event(eventAction) {
+        if (ga) {
+            ga('send', {
+                hitType: 'event',
+                eventCategory: 'Lander',
+                eventAction: eventAction
+            });
+        }
+    }
     function unroll(tomorrow) {
         return unrollMore(tomorrow, 1);
     }
@@ -369,16 +377,6 @@
         rightShowAt("Avg exchange: R" + format(avgHeight), 24, canvas.width, 72);
         rightShowAt("Min exchange: R" + format(minHeight), 24, canvas.width, 108);
 
-        function event(eventAction) {
-            if (ga) {
-                ga('send', {
-                    hitType: 'event',
-                    eventCategory: 'Lander',
-                    eventAction: eventAction
-                });
-            }
-        }
-
         if (ship.pos.y > floorHeight(ship.pos.x) - shipImage.height / 2) {
 
             // falling too fast, drifting too hard or off by ~10 degrees.
@@ -474,5 +472,6 @@
         randomizeShip();
         thisTime = new Date().getTime();
         loop();
+        event('another-game');
     };
 })();
