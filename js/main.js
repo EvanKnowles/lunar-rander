@@ -273,7 +273,7 @@
      * @returns {boolean}
      */
     var floorRough = function (x) {
-        const rough = (Math.abs(floorHeight(x - 2*shipImage.width / 3) - floorHeight(x)) + Math.abs(floorHeight(x + 2*shipImage.width / 3) - floorHeight(x))) / 2;
+        const rough = (Math.abs(floorHeight(x - shipImage.width / 3) - floorHeight(x)) + Math.abs(floorHeight(x + shipImage.width / 3) - floorHeight(x))) / 2;
         console.log(rough);
         
         return rough > 20;
