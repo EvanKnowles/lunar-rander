@@ -64,6 +64,9 @@
             ga('send', event);
         }
     }
+
+    event('game-loading');
+
     function unroll(tomorrow) {
         return unrollMore(tomorrow, 1);
     }
@@ -179,6 +182,8 @@
         await sleep(100)
             ;
         }
+
+        event('currency-loaded');
         avgHeight = 0;
         for (let val of days) {
             minHeight = Math.min(minHeight, val);
