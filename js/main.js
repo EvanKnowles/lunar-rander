@@ -16,6 +16,7 @@
 
     let screenTouch = false;
 
+    let gameCount = 1;
 
     if (window.DeviceOrientationEvent) {
         window.addEventListener('deviceorientation', devOrientHandler, false);
@@ -49,13 +50,18 @@
         str = "" + str;
         return padded.substring(0, padded.length - str.length) + str;
     }
-    function event(eventAction) {
+    function event(eventAction, value) {
         if (ga) {
-            ga('send', {
+            var event = {
                 hitType: 'event',
                 eventCategory: 'Lander',
-                eventAction: eventAction
-            });
+                eventAction: eventAction,
+            };
+            if (value)
+            {
+                event.eventValue = value;
+            }
+            ga('send', event);
         }
     }
     function unroll(tomorrow) {
@@ -472,6 +478,6 @@
         randomizeShip();
         thisTime = new Date().getTime();
         loop();
-        event('another-game');
+        event('another-game', ++gameCount);
     };
 })();
