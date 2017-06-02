@@ -369,16 +369,29 @@
         rightShowAt("Avg exchange: R" + format(avgHeight), 24, canvas.width, 72);
         rightShowAt("Min exchange: R" + format(minHeight), 24, canvas.width, 108);
 
+        function event(eventAction) {
+            if (ga) {
+                ga('send', {
+                    hitType: 'event',
+                    eventCategory: 'Lander',
+                    eventAction: eventAction
+                });
+            }
+        }
+
         if (ship.pos.y > floorHeight(ship.pos.x) - shipImage.height / 2) {
 
             // falling too fast, drifting too hard or off by ~10 degrees.
             if (Math.abs(ship.velocity.y) >= DEATH_Y || Math.abs(ship.velocity.x) >= DEATH_X || Math.abs(ship.rotate) >= DEATH_ROT) {
                 show("kablewwwy", 56);
+                event('lose-game-speed');
             } else if (floorRough(ship.pos.x)) {
                 show("oh dear... that's a mountain, you ded", 48);
+                event('lose-game-mountain');
             }
             else {
                 show("safe yay", 56);
+                event('win-game');
             }
 
             let nodeList = document.querySelectorAll('aside.hidden');
