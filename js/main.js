@@ -377,9 +377,10 @@
 
         ship.inc(diff);
 
+        centerShowAt("Land the ship safely!", 30, canvas.width / 2, 84);
         centerShowAt("ZAR/USD for the last 90 days", 24, canvas.width / 2, 36);
         if (help.mobilecheck()) {
-            centerShowAt("Tilt your phone - lock orientation?.", 24, canvas.width / 2, 60);
+            centerShowAt("Tilt your phone - lock orientation?", 24, canvas.width / 2, 60);
         }
         showAt("Fuel: " + Math.round(ship.fuel), 24, 10, 36);
         showAt("Velocity: " + ship.vel() + " m/s", 24, 10, 72);
